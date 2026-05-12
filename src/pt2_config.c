@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -69,6 +69,8 @@ void loadConfig(void)
 	config.keepEditModeAfterStepPlay = false;
 	config.maxSampleLength = 65534;
 	config.restrictedPattEditClick = false;
+	config.notesPerOctave = 12;
+	config.scale = SCALE_12EDO;
 
 #ifndef _WIN32
 	getcwd(oldCwd, PATH_MAX);
@@ -489,6 +491,23 @@ static bool loadProTrackerDotIni(FILE *f)
 			{
 				const int32_t num = atoi(&configLine[17]);
 				config.stereoSeparation = (int8_t)(CLAMP(num, 0, 100));
+			}
+		}
+
+		// SCALE
+		else if (!_strnicmp(configLine, "SCALE=", 6))
+		{
+			if (configLine[6] != '\0')
+			{
+			     if (!_strnicmp(&configLine[6], "12edo",  5))
+					 {
+						config.scale = SCALE_12EDO;
+						config.notesPerOctave =12;
+					 } else if (!_strnicmp(&configLine[6], "26edo", 5))
+					 {
+						config.amigaModel = SCALE_26EDO;
+						config.notesPerOctave = 26;
+					 }
 			}
 		}
 

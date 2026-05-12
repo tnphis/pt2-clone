@@ -10,6 +10,12 @@ enum
 	PIXELFILTER_BEST = 2
 };
 
+enum
+{
+	SCALE_12EDO = 0,
+	SCALE_26EDO = 1,
+};
+
 typedef struct config_t
 {
 	char *defModulesDir, *defSamplesDir;
@@ -17,10 +23,10 @@ typedef struct config_t
 	bool transDel, fullScreenStretch, vsyncOff, modDot, blankZeroFlag, realVuMeters, rememberPlayMode;
 	bool startInFullscreen, integerScaling, enableE8xEffect, noDownsampleOnSmpLoad, keepEditModeAfterStepPlay;
 	bool restrictedPattEditClick;
-	int8_t stereoSeparation, accidental;
+	int8_t stereoSeparation, accidental, scale;
 	bool autoFitVideoScale;
 	int8_t videoScaleFactor;
-	uint8_t pixelFilter, amigaModel;
+	uint8_t pixelFilter, amigaModel, notesPerOctave;
 	uint16_t quantizeValue;
 	int32_t maxSampleLength;
 	uint32_t soundFrequency, soundBufferSize, audioInputFrequency, mod2WavOutputFreq;
