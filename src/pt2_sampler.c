@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -711,7 +711,7 @@ void lowPassSample(int32_t cutOff)
 	{
 		const int8_t *smpPtr = &song->sampleData[s->offset];
 		for (int32_t i = from; i < to; i++)
-		{ 
+		{
 			double dSmp = smpPtr[i];
 			onePoleLPFilter(&filterLo, dSmp, &dSampleData[i]);
 		}
@@ -836,7 +836,7 @@ void deAllocSamplerVars(void)
 		free(sampler.blankSample);
 		sampler.blankSample = NULL;
 	}
-	
+
 	if (sampler.sampleUndoCopy != NULL)
 	{
 		free(sampler.sampleUndoCopy);
@@ -931,7 +931,7 @@ void samplerResample(void)
 	}
 
 	ASSERT(editor.currSample >= 0 && editor.currSample <= 30);
-	ASSERT(editor.tuningNote <= 35 && editor.resampleNote <= 35);
+	ASSERT(editor.tuningNote <= 3 * config.notesPerOctave - 1 && editor.resampleNote <= 3 * config.notesPerOctave - 1);
 
 	moduleSample_t *s = &song->samples[editor.currSample];
 	if (s->length == 0)
@@ -945,7 +945,7 @@ void samplerResample(void)
 	int32_t writePos = 0;
 	int8_t *writeData = &song->sampleData[s->offset];
 	int16_t refPeriod = periodTable[editor.tuningNote];
-	int16_t newPeriod = periodTable[(37 * (s->fineTune & 0xF)) + editor.resampleNote];
+	int16_t newPeriod = periodTable[((3 * config.notesPerOctave + 1) * (s->fineTune & 0xF)) + editor.resampleNote];
 	int32_t readLength = s->length;
 	int32_t writeLength = (readLength * newPeriod) / refPeriod;
 
@@ -1834,7 +1834,7 @@ static void playCurrSample(uint8_t chn, int32_t startOffset, int32_t endOffset, 
 {
 	ASSERT(editor.currSample >= 0 && editor.currSample <= 30);
 	ASSERT(chn < PAULA_VOICES);
-	ASSERT(editor.currPlayNote <= 35);
+	ASSERT(editor.currPlayNote <= 3 * config.notesPerOctave - 1);
 
 	moduleSample_t *s = &song->samples[editor.currSample];
 	moduleChannel_t *ch = &song->channels[chn];
@@ -1843,8 +1843,8 @@ static void playCurrSample(uint8_t chn, int32_t startOffset, int32_t endOffset, 
 
 	ch->n_samplenum = editor.currSample;
 	ch->n_volume = s->volume;
-	ch->n_period = periodTable[(37 * (s->fineTune & 0xF)) + editor.currPlayNote];
-	
+	ch->n_period = periodTable[((3 * config.notesPerOctave + 1) * (s->fineTune & 0xF)) + editor.currPlayNote];
+
 	if (playWaveformFlag)
 	{
 		ch->n_start = &song->sampleData[s->offset];

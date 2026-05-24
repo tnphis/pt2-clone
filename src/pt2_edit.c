@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -28,9 +28,9 @@
 #include "pt2_replayer.h"
 #include "pt2_visuals_sync.h"
 
-static const int8_t scancode2NoteLo[52] = // "USB usage page standard" order
+static const int8_t scancode2NoteLo[53] = // "USB usage page standard" order
 {
-	 7,  4,  3, 16, -1,  6,  8, 24,
+	 -1, 7,  4,  3, 16, -1,  6,  8, 24,
 	10, -1, 13, 11,  9, 26, 28, 12,
 	17,  1, 19, 23,  5, 14,  2, 21,
 	 0, -1, 13, 15, -1, 18, 20, 22,
@@ -39,9 +39,9 @@ static const int8_t scancode2NoteLo[52] = // "USB usage page standard" order
 	-1, 12, 14, 16
 };
 
-static const int8_t scancode2NoteHi[52] = // "USB usage page standard" order
+static const int8_t scancode2NoteHi[53] = // "USB usage page standard" order
 {
-	19, 16, 15, 28, -1, 18, 20, -2,
+	-1, 19, 16, 15, 28, -1, 18, 20, -2,
 	22, -1, 25, 23, 21, -2, -2, 24,
 	29, 13, 31, 35, 17, 26, 14, 33,
 	12, -1, 25, 27, -1, 30, 32, 34,
@@ -99,7 +99,7 @@ static void jamAndPlaceSample(SDL_Scancode scancode, bool normalMode)
 	{
 		moduleSample_t *s = &song->samples[editor.currSample];
 
-		int16_t tempPeriod  = periodTable[((s->fineTune & 0xF) * 37) + noteVal];
+		int16_t tempPeriod  = periodTable[((s->fineTune & 0xF) * (config.notesPerOctave * 3 + 1)) + noteVal];
 		uint16_t cleanPeriod = periodTable[noteVal];
 
 		editor.currPlayNote = noteVal;
@@ -449,7 +449,7 @@ void handleSampleJamming(SDL_Scancode scancode) // used for the sampling feature
 	}
 
 	int8_t noteVal = keyToNote(scancode);
-	if (noteVal < 0 || noteVal > 35)
+	if (noteVal < 0 || noteVal > config.notesPerOctave * 3 - 1)
 		return;
 
 	moduleSample_t *s = &song->samples[editor.currSample];
@@ -461,7 +461,7 @@ void handleSampleJamming(SDL_Scancode scancode) // used for the sampling feature
 	int8_t *n_start = &song->sampleData[s->offset];
 	int8_t vol = 64;
 	uint16_t n_length = (uint16_t)(s->length >> 1);
-	uint16_t period = periodTable[((s->fineTune & 0xF) * 37) + noteVal];
+	uint16_t period = periodTable[((s->fineTune & 0xF) * (config.notesPerOctave * 3 + 1)) + noteVal];
 
 	lockAudio();
 
@@ -736,16 +736,16 @@ void trackNoteUp(bool sampleAllFlag, uint8_t from, uint8_t to)
 		{
 			// period -> note
 			int32_t j;
-			for (j = 0; j < 36; j++)
+			for (j = 0; j < config.notesPerOctave * 3; j++)
 			{
 				if (noteSrc->period >= periodTable[j])
 					break;
 			}
 
 			bool noteDeleted = false;
-			if (++j > 35)
+			if (++j > config.notesPerOctave * 3 - 1)
 			{
-				j = 35;
+				j = config.notesPerOctave * 3 - 1;
 
 				if (config.transDel)
 				{
@@ -788,7 +788,7 @@ void trackNoteDown(bool sampleAllFlag, uint8_t from, uint8_t to)
 		{
 			// period -> note
 			int32_t j;
-			for (j = 0; j < 36; j++)
+			for (j = 0; j < config.notesPerOctave * 3; j++)
 			{
 				if (noteSrc->period >= periodTable[j])
 					break;
@@ -844,14 +844,14 @@ void trackOctaUp(bool sampleAllFlag, uint8_t from, uint8_t to)
 
 			// period -> note
 			int32_t j;
-			for (j = 0; j < 36; j++)
+			for (j = 0; j < config.notesPerOctave * 3; j++)
 			{
 				if (noteSrc->period >= periodTable[j])
 					break;
 			}
 
 			bool noteDeleted = false;
-			if (j+12 > 35 && config.transDel)
+			if (j+config.notesPerOctave > config.notesPerOctave * 3 - 1 && config.transDel)
 			{
 				noteSrc->period = 0;
 				noteSrc->sample = 0;
@@ -859,8 +859,8 @@ void trackOctaUp(bool sampleAllFlag, uint8_t from, uint8_t to)
 				noteDeleted = true;
 			}
 
-			if (j <= 23)
-				j += 12;
+			if (j <= config.notesPerOctave * 2 - 1)
+				j += config.notesPerOctave * 3 - 1;
 
 			if (!noteDeleted)
 				noteSrc->period = periodTable[j];
@@ -900,14 +900,14 @@ void trackOctaDown(bool sampleAllFlag, uint8_t from, uint8_t to)
 		{
 			// period -> note
 			int32_t j;
-			for (j = 0; j < 36; j++)
+			for (j = 0; j < config.notesPerOctave * 3; j++)
 			{
 				if (noteSrc->period >= periodTable[j])
 					break;
 			}
 
 			bool noteDeleted = false;
-			if (j-12 < 0 && config.transDel)
+			if (j-config.notesPerOctave < 0 && config.transDel)
 			{
 				noteSrc->period = 0;
 				noteSrc->sample = 0;
@@ -915,8 +915,8 @@ void trackOctaDown(bool sampleAllFlag, uint8_t from, uint8_t to)
 				noteDeleted = true;
 			}
 
-			if (j >= 12)
-				j -= 12;
+			if (j >= config.notesPerOctave)
+				j -= config.notesPerOctave;
 
 			if (!noteDeleted)
 				noteSrc->period = periodTable[j];
@@ -945,16 +945,16 @@ void pattNoteUp(bool sampleAllFlag)
 			{
 				// period -> note
 				int32_t k;
-				for (k = 0; k < 36; k++)
+				for (k = 0; k < config.notesPerOctave * 3; k++)
 				{
 					if (noteSrc->period >= periodTable[k])
 						break;
 				}
 
 				bool noteDeleted = false;
-				if (++k > 35)
+				if (++k > config.notesPerOctave * 3 - 1)
 				{
-					k = 35;
+					k = config.notesPerOctave * 3 - 1;
 
 					if (config.transDel)
 					{
@@ -993,7 +993,7 @@ void pattNoteDown(bool sampleAllFlag)
 			{
 				// period -> note
 				int32_t k;
-				for (k = 0; k < 36; k++)
+				for (k = 0; k < config.notesPerOctave * 3; k++)
 				{
 					if (noteSrc->period >= periodTable[k])
 						break;
@@ -1041,14 +1041,14 @@ void pattOctaUp(bool sampleAllFlag)
 			{
 				// period -> note
 				int32_t k;
-				for (k = 0; k < 36; k++)
+				for (k = 0; k < config.notesPerOctave * 3; k++)
 				{
 					if (noteSrc->period >= periodTable[k])
 						break;
 				}
 
 				bool noteDeleted = false;
-				if (k+12 > 35 && config.transDel)
+				if (k+config.notesPerOctave > config.notesPerOctave * 3 - 1 && config.transDel)
 				{
 					noteSrc->period = 0;
 					noteSrc->sample = 0;
@@ -1056,8 +1056,8 @@ void pattOctaUp(bool sampleAllFlag)
 					noteDeleted = true;
 				}
 
-				if (k <= 23)
-					k += 12;
+				if (k <= config.notesPerOctave * 2 - 1)
+					k += config.notesPerOctave;
 
 				if (!noteDeleted)
 					noteSrc->period = periodTable[k];
@@ -1087,14 +1087,14 @@ void pattOctaDown(bool sampleAllFlag)
 			{
 				// period -> note
 				int32_t k;
-				for (k = 0; k < 36; k++)
+				for (k = 0; k < config.notesPerOctave * 3; k++)
 				{
 					if (noteSrc->period >= periodTable[k])
 						break;
 				}
 
 				bool noteDeleted = false;
-				if (k-12 < 0 && config.transDel)
+				if (k-config.notesPerOctave < 0 && config.transDel)
 				{
 					noteSrc->period = 0;
 					noteSrc->sample = 0;
@@ -1102,8 +1102,8 @@ void pattOctaDown(bool sampleAllFlag)
 					noteDeleted = true;
 				}
 
-				if (k >= 12)
-					k -= 12;
+				if (k >= config.notesPerOctave)
+					k -= config.notesPerOctave;
 
 				if (!noteDeleted)
 					noteSrc->period = periodTable[k];
@@ -1119,11 +1119,11 @@ int8_t keyToNote(SDL_Scancode scancode)
 {
 	int8_t note;
 
-	if (scancode < SDL_SCANCODE_B || scancode > SDL_SCANCODE_SLASH)
+	if (scancode < SDL_SCANCODE_A || scancode > SDL_SCANCODE_SLASH)
 		return -1; // not a note key
 
-	int32_t lookUpKey = (int32_t)scancode - SDL_SCANCODE_B;
-	if (lookUpKey < 0 || lookUpKey >= 52)
+	int32_t lookUpKey = (int32_t)scancode - SDL_SCANCODE_A;
+	if (lookUpKey < 0 || lookUpKey >= 53)
 		return -1; // just in case
 
 	if (editor.keyOctave == OCTAVE_LOW)

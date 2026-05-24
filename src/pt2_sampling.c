@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -137,10 +137,10 @@ static void freePolyphaseSincLUT(void)
 
 static void updateOutputFrequency(void)
 {
-	if (samplingNote > 35)
-		samplingNote = 35;
+	if (samplingNote > config.notesPerOctave * 3 - 1)
+		samplingNote = config.notesPerOctave * 3 - 1;
 
-	int32_t period = periodTable[((samplingFinetune & 0xF) * 37) + samplingNote];
+	int32_t period = periodTable[((samplingFinetune & 0xF) * (config.notesPerOctave * 3 + 1)) + samplingNote];
 	if (period < 113) // also happens in our "set period" Paula function
 		period = 113;
 
@@ -359,7 +359,7 @@ static void listAudioDevices(void)
 
 static void drawSamplingNote(void)
 {
-	ASSERT(samplingNote < 36);
+	ASSERT(samplingNote < config.notesPerOctave * 3);
 	const char *str = config.accidental ? noteNames2[2+samplingNote]: noteNames1[2+samplingNote];
 	textOutBg(262, 230, str, video.palette[PAL_GENTXT], video.palette[PAL_GENBKG]);
 }
@@ -547,7 +547,7 @@ static void startSampling(void)
 
 	dResamplingRatio = dOutputFrequency / inputFrequency;
 	maxSamplingLength = (int32_t)ceil(config.maxSampleLength /dResamplingRatio) + 1;
-	
+
 	const int32_t allocLen = (SINC_TAPS/2) + maxSamplingLength + (SINC_TAPS/2);
 
 	fSamplingBufferOrig = (float *)malloc(allocLen * sizeof (float));
@@ -617,14 +617,14 @@ static int32_t resampleSamplingBuffer(void)
 
 	// pre-center sample data pointer (left side is pre-cleared)
 	const float *fSmpData = &fSamplingBuffer[-CENTER_TAP];
-	
+
 	// set out-of-bounds sampling tap area
 	for (int32_t i = 0; i < SINC_TAPS/2; i++)
 	{
 		fSamplingBuffer[i-CENTER_TAP] = fSamplingBuffer[0];
 		fSamplingBuffer[bytesSampled+i] = fSamplingBuffer[bytesSampled-1];
 	}
-	
+
 	const uint64_t delta = (uint64_t)round(DELTA_FRAC_SCALE / dResamplingRatio);
 	uint64_t frac = 0;
 
@@ -923,8 +923,8 @@ void handleSamplingBox(void)
 
 void setSamplingNote(uint8_t note) // must be called from video thread!
 {
-	if (note > 35)
-		note = 35;
+	if (note > config.notesPerOctave * 3 - 1)
+		note = config.notesPerOctave * 3 - 1;
 
 	samplingNote = note;
 	samplingFinetune = 0;

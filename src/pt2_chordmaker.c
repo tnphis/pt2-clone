@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -21,6 +21,8 @@
 
 #define MAX_NOTES 4
 
+// todo: some kind of chord table
+
 typedef struct sampleMixer_t
 {
 	bool active;
@@ -32,29 +34,29 @@ static void sortNotes(void)
 {
 	for (int32_t i = 0; i < 3; i++)
 	{
-		if (editor.note2 == 36)
+		if (editor.note2 == config.notesPerOctave * 3)
 		{
 			editor.note2 = editor.note3;
 			editor.note3 = editor.note4;
-			editor.note4 = 36;
+			editor.note4 = config.notesPerOctave * 3;
 		}
 	}
 
 	for (int32_t i = 0; i < 3; i++)
 	{
-		if (editor.note3 == 36)
+		if (editor.note3 == config.notesPerOctave * 3)
 		{
 			editor.note3 = editor.note4;
-			editor.note4 = 36;
+			editor.note4 = config.notesPerOctave * 3;
 		}
 	}
 }
 
 static void removeDuplicateNotes(void)
 {
-	if (editor.note4 == editor.note3) editor.note4 = 36;
-	if (editor.note4 == editor.note2) editor.note4 = 36;
-	if (editor.note3 == editor.note2) editor.note3 = 36;
+	if (editor.note4 == editor.note3) editor.note4 = config.notesPerOctave * 3;
+	if (editor.note4 == editor.note2) editor.note4 = config.notesPerOctave * 3;
+	if (editor.note3 == editor.note2) editor.note3 = config.notesPerOctave * 3;
 }
 
 static void setupMixVoice(sampleMixer_t *v, int32_t length, double dDelta)
@@ -80,7 +82,7 @@ void mixChordSample(void)
 		return;
 	}
 
-	if (editor.note1 == 36)
+	if (editor.note1 == config.notesPerOctave * 3)
 	{
 		displayErrorMsg("NO BASENOTE!");
 		return;
@@ -95,9 +97,9 @@ void mixChordSample(void)
 
 	// check if all notes are the same (illegal)
 	bool sameNotes = true;
-	if (editor.note2 != 36 && editor.note2 != editor.note1) sameNotes = false; else editor.note2 = 36;
-	if (editor.note3 != 36 && editor.note3 != editor.note1) sameNotes = false; else editor.note3 = 36;
-	if (editor.note4 != 36 && editor.note4 != editor.note1) sameNotes = false; else editor.note4 = 36;
+	if (editor.note2 != config.notesPerOctave * 3 && editor.note2 != editor.note1) sameNotes = false; else editor.note2 = config.notesPerOctave * 3;
+	if (editor.note3 != config.notesPerOctave * 3 && editor.note3 != editor.note1) sameNotes = false; else editor.note3 = config.notesPerOctave * 3;
+	if (editor.note4 != config.notesPerOctave * 3 && editor.note4 != editor.note1) sameNotes = false; else editor.note4 = config.notesPerOctave * 3;
 
 	if (sameNotes)
 	{
@@ -166,13 +168,13 @@ void mixChordSample(void)
 	// setup mixing lengths and deltas
 
 	uint8_t finetune = s->fineTune & 0xF;
-	const double dOutputHz = ((double)PAULA_PAL_CLK / periodTable[24]) * 2.0;
+	const double dOutputHz = ((double)PAULA_PAL_CLK / periodTable[config.notesPerOctave * 2]) * 2.0;
 
 	const double dClk = PAULA_PAL_CLK / dOutputHz;
-	if (editor.note1 < 36) setupMixVoice(&mixCh[0], smpEnd, dClk / periodTable[(finetune * 37) + editor.note1]);
-	if (editor.note2 < 36) setupMixVoice(&mixCh[1], smpEnd, dClk / periodTable[(finetune * 37) + editor.note2]);
-	if (editor.note3 < 36) setupMixVoice(&mixCh[2], smpEnd, dClk / periodTable[(finetune * 37) + editor.note3]);
-	if (editor.note4 < 36) setupMixVoice(&mixCh[3], smpEnd, dClk / periodTable[(finetune * 37) + editor.note4]);
+	if (editor.note1 < config.notesPerOctave * 3) setupMixVoice(&mixCh[0], smpEnd, dClk / periodTable[(finetune * (config.notesPerOctave * 3 + 1)) + editor.note1]);
+	if (editor.note2 < config.notesPerOctave * 3) setupMixVoice(&mixCh[1], smpEnd, dClk / periodTable[(finetune * (config.notesPerOctave * 3 + 1)) + editor.note2]);
+	if (editor.note3 < config.notesPerOctave * 3) setupMixVoice(&mixCh[2], smpEnd, dClk / periodTable[(finetune * (config.notesPerOctave * 3 + 1)) + editor.note3]);
+	if (editor.note4 < config.notesPerOctave * 3) setupMixVoice(&mixCh[3], smpEnd, dClk / periodTable[(finetune * (config.notesPerOctave * 3 + 1)) + editor.note4]);
 
 	// start mixing
 	memset(bleps, 0, sizeof (bleps));
@@ -276,23 +278,23 @@ void recalcChordLength(void)
 
 	if (editor.chordLengthMin)
 	{
-		note = MAX(MAX((editor.note1 == 36) ? -1 : editor.note1,
-		               (editor.note2 == 36) ? -1 : editor.note2),
-		           MAX((editor.note3 == 36) ? -1 : editor.note3,
-		               (editor.note4 == 36) ? -1 : editor.note4));
+		note = MAX(MAX((editor.note1 == config.notesPerOctave * 3) ? -1 : editor.note1,
+		               (editor.note2 == config.notesPerOctave * 3) ? -1 : editor.note2),
+		           MAX((editor.note3 == config.notesPerOctave * 3) ? -1 : editor.note3,
+		               (editor.note4 == config.notesPerOctave * 3) ? -1 : editor.note4));
 	}
 	else
 	{
 		note = MIN(MIN(editor.note1, editor.note2), MIN(editor.note3, editor.note4));
 	}
 
-	if (note < 0 || note > 35)
+	if (note < 0 || note > 3 * config.notesPerOctave - 1)
 	{
 		editor.chordLength = 0;
 	}
 	else
 	{
-		int32_t len = (s->length * periodTable[(37 * s->fineTune) + note]) / periodTable[24];
+		int32_t len = (s->length * periodTable[((config.notesPerOctave + 1) * s->fineTune) + note]) / periodTable[2 * config.notesPerOctave];
 		if (len > config.maxSampleLength)
 			len = config.maxSampleLength;
 
@@ -305,10 +307,10 @@ void recalcChordLength(void)
 
 void resetChord(void)
 {
-	editor.note1 = 36;
-	editor.note2 = 36;
-	editor.note3 = 36;
-	editor.note4 = 36;
+	editor.note1 = config.notesPerOctave * 3;
+	editor.note2 = config.notesPerOctave * 3;
+	editor.note3 = config.notesPerOctave * 3;
+	editor.note4 = config.notesPerOctave * 3;
 
 	editor.chordLengthMin = false;
 
@@ -346,7 +348,7 @@ void toggleChordLength(void)
 
 void setChordMajor(void)
 {
-	if (editor.note1 == 36)
+	if (editor.note1 == config.notesPerOctave * 3)
 	{
 		displayErrorMsg("NO BASENOTE!");
 		return;
@@ -357,10 +359,10 @@ void setChordMajor(void)
 	editor.note2 = editor.note1 + 4;
 	editor.note3 = editor.note1 + 7;
 
-	if (editor.note2 >= 36) editor.note2 -= 12;
-	if (editor.note3 >= 36) editor.note3 -= 12;
+	if (editor.note2 >= config.notesPerOctave * 3) editor.note2 -= config.notesPerOctave;
+	if (editor.note3 >= config.notesPerOctave * 3) editor.note3 -= config.notesPerOctave;
 
-	editor.note4 = 36;
+	editor.note4 = config.notesPerOctave * 3;
 
 	ui.updateChordNote2Text = true;
 	ui.updateChordNote3Text = true;
@@ -371,7 +373,7 @@ void setChordMajor(void)
 
 void setChordMinor(void)
 {
-	if (editor.note1 == 36)
+	if (editor.note1 == config.notesPerOctave * 3)
 	{
 		displayErrorMsg("NO BASENOTE!");
 		return;
@@ -382,10 +384,10 @@ void setChordMinor(void)
 	editor.note2 = editor.note1 + 3;
 	editor.note3 = editor.note1 + 7;
 
-	if (editor.note2 >= 36) editor.note2 -= 12;
-	if (editor.note3 >= 36) editor.note3 -= 12;
+	if (editor.note2 >= config.notesPerOctave * 3) editor.note2 -= config.notesPerOctave;
+	if (editor.note3 >= config.notesPerOctave * 3) editor.note3 -= config.notesPerOctave;
 
-	editor.note4 = 36;
+	editor.note4 = config.notesPerOctave * 3;
 
 	ui.updateChordNote2Text = true;
 	ui.updateChordNote3Text = true;
@@ -396,7 +398,7 @@ void setChordMinor(void)
 
 void setChordSus4(void)
 {
-	if (editor.note1 == 36)
+	if (editor.note1 == config.notesPerOctave * 3)
 	{
 		displayErrorMsg("NO BASENOTE!");
 		return;
@@ -407,10 +409,10 @@ void setChordSus4(void)
 	editor.note2 = editor.note1 + 5;
 	editor.note3 = editor.note1 + 7;
 
-	if (editor.note2 >= 36) editor.note2 -= 12;
-	if (editor.note3 >= 36) editor.note3 -= 12;
+	if (editor.note2 >= config.notesPerOctave * 3) editor.note2 -= config.notesPerOctave;
+	if (editor.note3 >= config.notesPerOctave * 3) editor.note3 -= config.notesPerOctave;
 
-	editor.note4 = 36;
+	editor.note4 = config.notesPerOctave * 3;
 
 	ui.updateChordNote2Text = true;
 	ui.updateChordNote3Text = true;
@@ -421,7 +423,7 @@ void setChordSus4(void)
 
 void setChordMajor6(void)
 {
-	if (editor.note1 == 36)
+	if (editor.note1 == config.notesPerOctave * 3)
 	{
 		displayErrorMsg("NO BASENOTE!");
 		return;
@@ -433,9 +435,9 @@ void setChordMajor6(void)
 	editor.note3 = editor.note1 + 7;
 	editor.note4 = editor.note1 + 9;
 
-	if (editor.note2 >= 36) editor.note2 -= 12;
-	if (editor.note3 >= 36) editor.note3 -= 12;
-	if (editor.note4 >= 36) editor.note4 -= 12;
+	if (editor.note2 >= config.notesPerOctave * 3) editor.note2 -= config.notesPerOctave;
+	if (editor.note3 >= config.notesPerOctave * 3) editor.note3 -= config.notesPerOctave;
+	if (editor.note4 >= config.notesPerOctave * 3) editor.note4 -= config.notesPerOctave;
 
 	ui.updateChordNote2Text = true;
 	ui.updateChordNote3Text = true;
@@ -446,7 +448,7 @@ void setChordMajor6(void)
 
 void setChordMinor6(void)
 {
-	if (editor.note1 == 36)
+	if (editor.note1 == config.notesPerOctave * 3)
 	{
 		displayErrorMsg("NO BASENOTE!");
 		return;
@@ -458,9 +460,9 @@ void setChordMinor6(void)
 	editor.note3 = editor.note1 + 7;
 	editor.note4 = editor.note1 + 9;
 
-	if (editor.note2 >= 36) editor.note2 -= 12;
-	if (editor.note3 >= 36) editor.note3 -= 12;
-	if (editor.note4 >= 36) editor.note4 -= 12;
+	if (editor.note2 >= config.notesPerOctave * 3) editor.note2 -= config.notesPerOctave;
+	if (editor.note3 >= config.notesPerOctave * 3) editor.note3 -= config.notesPerOctave;
+	if (editor.note4 >= config.notesPerOctave * 3) editor.note4 -= config.notesPerOctave;
 
 	ui.updateChordNote2Text = true;
 	ui.updateChordNote3Text = true;
@@ -471,7 +473,7 @@ void setChordMinor6(void)
 
 void setChordMajor7(void)
 {
-	if (editor.note1 == 36)
+	if (editor.note1 == config.notesPerOctave * 3)
 	{
 		displayErrorMsg("NO BASENOTE!");
 		return;
@@ -483,9 +485,9 @@ void setChordMajor7(void)
 	editor.note3 = editor.note1 + 7;
 	editor.note4 = editor.note1 + 11;
 
-	if (editor.note2 >= 36) editor.note2 -= 12;
-	if (editor.note3 >= 36) editor.note3 -= 12;
-	if (editor.note4 >= 36) editor.note4 -= 12;
+	if (editor.note2 >= config.notesPerOctave * 3) editor.note2 -= config.notesPerOctave;
+	if (editor.note3 >= config.notesPerOctave * 3) editor.note3 -= config.notesPerOctave;
+	if (editor.note4 >= config.notesPerOctave * 3) editor.note4 -= config.notesPerOctave;
 
 	ui.updateChordNote2Text = true;
 	ui.updateChordNote3Text = true;
@@ -496,7 +498,7 @@ void setChordMajor7(void)
 
 void setChordMinor7(void)
 {
-	if (editor.note1 == 36)
+	if (editor.note1 == config.notesPerOctave * 3)
 	{
 		displayErrorMsg("NO BASENOTE!");
 		return;
@@ -508,9 +510,9 @@ void setChordMinor7(void)
 	editor.note3 = editor.note1 + 7;
 	editor.note4 = editor.note1 + 10;
 
-	if (editor.note2 >= 36) editor.note2 -= 12;
-	if (editor.note3 >= 36) editor.note3 -= 12;
-	if (editor.note4 >= 36) editor.note4 -= 12;
+	if (editor.note2 >= config.notesPerOctave * 3) editor.note2 -= config.notesPerOctave;
+	if (editor.note3 >= config.notesPerOctave * 3) editor.note3 -= config.notesPerOctave;
+	if (editor.note4 >= config.notesPerOctave * 3) editor.note4 -= config.notesPerOctave;
 
 	ui.updateChordNote2Text = true;
 	ui.updateChordNote3Text = true;
@@ -523,7 +525,7 @@ void selectChordNote1(void)
 {
 	if (mouse.rightButtonPressed)
 	{
-		editor.note1 = 36;
+		editor.note1 = config.notesPerOctave * 3;
 	}
 	else
 	{
@@ -539,7 +541,7 @@ void selectChordNote2(void)
 {
 	if (mouse.rightButtonPressed)
 	{
-		editor.note2 = 36;
+		editor.note2 = config.notesPerOctave * 3;
 	}
 	else
 	{
@@ -555,7 +557,7 @@ void selectChordNote3(void)
 {
 	if (mouse.rightButtonPressed)
 	{
-		editor.note3 = 36;
+		editor.note3 = config.notesPerOctave * 3;
 	}
 	else
 	{
@@ -571,7 +573,7 @@ void selectChordNote4(void)
 {
 	if (mouse.rightButtonPressed)
 	{
-		editor.note4 = 36;
+		editor.note4 = config.notesPerOctave * 3;
 	}
 	else
 	{

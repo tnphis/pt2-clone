@@ -688,7 +688,7 @@ void updateSampler(void)
 		}
 		else
 		{
-			ASSERT(editor.resampleNote < 36);
+			ASSERT(editor.resampleNote < config.notesPerOctave * 3);
 			textOutBg(288, 236,
 				config.accidental ? noteNames2[2+editor.resampleNote] : noteNames1[2+editor.resampleNote],
 				video.palette[PAL_GENTXT], video.palette[PAL_GENBKG]);
@@ -1249,7 +1249,7 @@ void updateEditOp(void)
 		if (ui.updateChordNote1Text)
 		{
 			ui.updateChordNote1Text = false;
-			if (editor.note1 > 35)
+			if (editor.note1 > config.notesPerOctave * 3 - 1)
 				textOutBg(256, 58, "---", video.palette[PAL_GENTXT], video.palette[PAL_GENBKG]);
 			else
 				textOutBg(256, 58, config.accidental ? noteNames2[2+editor.note1] : noteNames1[2+editor.note1],
@@ -1259,7 +1259,7 @@ void updateEditOp(void)
 		if (ui.updateChordNote2Text)
 		{
 			ui.updateChordNote2Text = false;
-			if (editor.note2 > 35)
+			if (editor.note2 > config.notesPerOctave * 3 - 1)
 				textOutBg(256, 69, "---", video.palette[PAL_GENTXT], video.palette[PAL_GENBKG]);
 			else
 				textOutBg(256, 69, config.accidental ? noteNames2[2+editor.note2] : noteNames1[2+editor.note2],
@@ -1269,7 +1269,7 @@ void updateEditOp(void)
 		if (ui.updateChordNote3Text)
 		{
 			ui.updateChordNote3Text = false;
-			if (editor.note3 > 35)
+			if (editor.note3 > config.notesPerOctave * 3 - 1)
 				textOutBg(256, 80, "---", video.palette[PAL_GENTXT], video.palette[PAL_GENBKG]);
 			else
 				textOutBg(256, 80, config.accidental ? noteNames2[2+editor.note3] : noteNames1[2+editor.note3],
@@ -1279,7 +1279,7 @@ void updateEditOp(void)
 		if (ui.updateChordNote4Text)
 		{
 			ui.updateChordNote4Text = false;
-			if (editor.note4 > 35)
+			if (editor.note4 > config.notesPerOctave * 3 - 1)
 				textOutBg(256, 91, "---", video.palette[PAL_GENTXT], video.palette[PAL_GENBKG]);
 			else
 				textOutBg(256, 91, config.accidental ? noteNames2[2+editor.note4] : noteNames1[2+editor.note4],

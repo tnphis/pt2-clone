@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -52,7 +52,7 @@ static void pat2SmpOutputAudio(int32_t numSamples, bool outputEnable)
 		pat2SmpPos += samplesTodo;
 		if (pat2SmpPos >= config.maxSampleLength)
 			pat2SmpEndReached = true;
-	}	
+	}
 }
 
 void pat2SmpDrawNote(void)
@@ -101,10 +101,10 @@ void pat2SmpCalculateFreq(void)
 	if (pat2SmpFinetune > 15)
 		pat2SmpFinetune = 15;
 
-	if (pat2SmpNote > 35)
-		pat2SmpNote = 35;
+	if (pat2SmpNote > config.notesPerOctave * 3 - 1)
+		pat2SmpNote = config.notesPerOctave * 3 - 1;
 
-	dPat2SmpFreq = PAULA_PAL_CLK / (double)periodTable[(pat2SmpFinetune * 37) + pat2SmpNote];
+	dPat2SmpFreq = PAULA_PAL_CLK / (double)periodTable[(pat2SmpFinetune * (config.notesPerOctave * 3 + 1)) + pat2SmpNote];
 	if (dPat2SmpFreq > PAL_PAULA_MAX_HZ)
 		dPat2SmpFreq = PAL_PAULA_MAX_HZ;
 
@@ -114,12 +114,12 @@ void pat2SmpCalculateFreq(void)
 
 void pat2SmpNoteUp(void)
 {
-	if (pat2SmpNote < 35)
+	if (pat2SmpNote < config.notesPerOctave * 3 - 1)
 	{
 		pat2SmpNote++;
 		pat2SmpDrawNote();
 
-		if (pat2SmpNote == 35 && pat2SmpFinetune < 8) // high-limit to B-3 finetune 0
+		if (pat2SmpNote == config.notesPerOctave * 3 - 1 && pat2SmpFinetune < 8) // high-limit to B-3 finetune 0
 		{
 			pat2SmpFinetune = 0;
 			pat2SmpDrawFinetune();
@@ -131,12 +131,12 @@ void pat2SmpNoteUp(void)
 
 void pat2SmpNoteDown(void)
 {
-	if (pat2SmpNote > 23)
+	if (pat2SmpNote > config.notesPerOctave * 2 - 1)
 	{
 		pat2SmpNote--;
 		pat2SmpDrawNote();
 
-		if (pat2SmpNote == 23 && pat2SmpFinetune > 7) // low-limit to B-2 finetune 0
+		if (pat2SmpNote == config.notesPerOctave * 2 - 1 && pat2SmpFinetune > 7) // low-limit to B-2 finetune 0
 		{
 			pat2SmpFinetune = 0;
 			pat2SmpDrawFinetune();
@@ -158,7 +158,7 @@ void pat2SmpFinetuneUp(void)
 	if ((pat2SmpFinetune & 0xF) != 7)
 		pat2SmpFinetune = (pat2SmpFinetune + 1) & 0xF;
 
-	if (pat2SmpNote == 35 && pat2SmpFinetune < 8) // for B-3, high-limit finetune to 0
+	if (pat2SmpNote == config.notesPerOctave * 3 - 1 && pat2SmpFinetune < 8) // for B-3, high-limit finetune to 0
 		pat2SmpFinetune = 0;
 
 	pat2SmpDrawFinetune();
@@ -170,7 +170,7 @@ void pat2SmpFinetuneDown(void)
 	if ((pat2SmpFinetune & 0xF) != 8)
 		pat2SmpFinetune = (pat2SmpFinetune - 1) & 0xF;
 
-	if (pat2SmpNote == 23 && pat2SmpFinetune > 7) // for B-2, low-limit finetune to 0
+	if (pat2SmpNote == config.notesPerOctave * 2 - 1 && pat2SmpFinetune > 7) // for B-2, low-limit finetune to 0
 		pat2SmpFinetune = 0;
 
 	pat2SmpDrawFinetune();
@@ -337,7 +337,7 @@ void pat2SmpRender(void)
 	int32_t newSampleLength = (pat2SmpPos + 1) & ~1;
 	if (newSampleLength > config.maxSampleLength)
 		newSampleLength = config.maxSampleLength;
-	
+
 	// clear the rest of the sample (if not full)
 	if (newSampleLength < config.maxSampleLength)
 		memset(&song->sampleData[s->offset+newSampleLength], 0, config.maxSampleLength - newSampleLength);
@@ -352,8 +352,8 @@ void pat2SmpRender(void)
 
 	// set sample name
 
-	const int32_t note = pat2SmpNote % 12;
-	const int32_t octave = (pat2SmpNote / 12) + 1;
+	const int32_t note = pat2SmpNote % config.notesPerOctave;
+	const int32_t octave = (pat2SmpNote / config.notesPerOctave) + 1;
 
 	if (pat2SmpFinetune == 0)
 		sprintf(s->text, "pat2smp(%s%d ftune: 0)", noteStr[note], octave);

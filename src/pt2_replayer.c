@@ -1,6 +1,6 @@
 // C port of ProTracker 2.3D's replayer (with some modifications, but still accurate)
 
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -375,7 +375,7 @@ static void doRetrg(moduleChannel_t *ch)
 	const uint32_t voiceAddr = 0xDFF0A0 + (ch->n_chanindex * 16);
 
 	// voice DMA off
-	paulaWriteWord(0xDFF096, ch->n_dmabit); 
+	paulaWriteWord(0xDFF096, ch->n_dmabit);
 
 	// set voice data ptr, data length and period
 	paulaWritePtr(voiceAddr + 0, ch->n_start); // n_start is increased on 9xx
@@ -383,8 +383,8 @@ static void doRetrg(moduleChannel_t *ch)
 	paulaWriteWord(voiceAddr + 6, ch->n_period);
 
 	// voice DMA on
-	paulaWriteWord(0xDFF096, 0x8000 | ch->n_dmabit); 
-	
+	paulaWriteWord(0xDFF096, 0x8000 | ch->n_dmabit);
+
 	// set new data ptr and data length (these take effect after the current DMA cycle is done)
 	paulaWritePtr(voiceAddr + 0, ch->n_loopstart);
 	paulaWriteWord(voiceAddr + 4, ch->n_replen);
@@ -556,8 +556,8 @@ static void arpeggio(moduleChannel_t *ch)
 	** the correct overflow values to allow this to safely happen
 	** and sound correct at the same time.
 	*/
-	const int16_t *periods = &periodTable[ch->n_finetune * 37];
-	for (int32_t baseNote = 0; baseNote < 37; baseNote++)
+	const int16_t *periods = &periodTable[ch->n_finetune * (config.notesPerOctave * 3 + 1)];
+	for (int32_t baseNote = 0; baseNote < (config.notesPerOctave * 3 + 1); baseNote++)
 	{
 		if (ch->n_period >= periods[baseNote])
 		{
@@ -634,7 +634,7 @@ static void finePortaDown(moduleChannel_t *ch)
 static void setTonePorta(moduleChannel_t *ch)
 {
 	uint16_t note = ch->n_note & 0xFFF;
-	const int16_t *portaPointer = &periodTable[ch->n_finetune * 37];
+	const int16_t *portaPointer = &periodTable[ch->n_finetune * (config.notesPerOctave * 3 + 1)];
 
 	int32_t i = 0;
 	while (true)
@@ -643,9 +643,9 @@ static void setTonePorta(moduleChannel_t *ch)
 		if (note >= portaPointer[i])
 			break;
 
-		if (++i >= 37)
+		if (++i >= config.notesPerOctave * 3 + 1)
 		{
-			i = 35;
+			i = config.notesPerOctave * 3 - 1;
 			break;
 		}
 	}
@@ -695,7 +695,7 @@ static void tonePortNoChange(moduleChannel_t *ch)
 	}
 	else
 	{
-		const int16_t *portaPointer = &periodTable[ch->n_finetune * 37];
+		const int16_t *portaPointer = &periodTable[ch->n_finetune * (config.notesPerOctave * 3 + 1)];
 
 		int32_t i = 0;
 		while (true)
@@ -704,9 +704,9 @@ static void tonePortNoChange(moduleChannel_t *ch)
 			if (ch->n_period >= portaPointer[i])
 				break;
 
-			if (++i >= 37)
+			if (++i >= config.notesPerOctave * 3 + 1)
 			{
-				i = 35;
+				i = config.notesPerOctave * 3 - 1;
 				break;
 			}
 		}
@@ -986,7 +986,7 @@ static void setPeriod(moduleChannel_t *ch)
 	int32_t i;
 
 	uint16_t note = ch->n_note & 0xFFF;
-	for (i = 0; i < 37; i++)
+	for (i = 0; i < config.notesPerOctave * 3 + 1; i++)
 	{
 		// periodTable[36] = 0, so i=36 is safe
 		if (note >= periodTable[i])
@@ -994,7 +994,7 @@ static void setPeriod(moduleChannel_t *ch)
 	}
 
 	// yes it's safe if i=37 because of zero-padding
-	ch->n_period = periodTable[(ch->n_finetune * 37) + i];
+	ch->n_period = periodTable[(ch->n_finetune * (config.notesPerOctave * 3 + 1)) + i];
 
 	if ((ch->n_cmd & 0xFF0) != 0xED0) // no note delay
 	{
@@ -1326,7 +1326,7 @@ void modSetTempo(int32_t bpm, bool doLockAudio)
 	const bool audioWasntLocked = !audio.locked;
 	if (doLockAudio && audioWasntLocked)
 		lockAudio();
-	
+
 	modBPM = bpm;
 	if (!editor.pat2SmpOngoing && !editor.mod2WavOngoing)
 	{
