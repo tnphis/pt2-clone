@@ -1,3 +1,11 @@
+This is a hack of the original pt2-clone by 8bitbubsy that attempts to shove microtonal tunings into it courtesy of the fact that the mod format stores its data as amiga periods rather than some hardcoded note values. It's intended for personal use as a proof of concept demo thing. At the moment (and probably indefinitely since I don't see it as a potential feature) there is no configuration, and each tuning is stored in a separate branch with the binare to be compiled from the source.
+
+## things to do for each new tuning
+- modify the period and note names table in pt2_tables.h and pt2_tables.c
+- modify the keyboard layout in pt2_edit.c
+- modify noteStr in pt2_pat2smp.c
+
+----    original readme    ----
 # pt2-clone
 ProTracker 2 clone for Windows/macOS/Linux
 

@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -515,24 +515,24 @@ static bool initializeVars(void)
 	turnOffVoices();
 
 	// set various non-zero values
-	
+
 	editor.vol1 = 100;
 	editor.vol2 = 100;
-	editor.note1 = 36;
-	editor.note2 = 36;
-	editor.note3 = 36;
-	editor.note4 = 36;
+	editor.note1 = config.notesPerOctave * 3;
+	editor.note2 = config.notesPerOctave * 3;
+	editor.note3 = config.notesPerOctave * 3;
+	editor.note4 = config.notesPerOctave * 3;
 	editor.f7Pos = 16;
 	editor.f8Pos = 32;
 	editor.f9Pos = 48;
 	editor.f10Pos = 63;
-	editor.oldNote1 = 36;
-	editor.oldNote2 = 36;
-	editor.oldNote3 = 36;
-	editor.oldNote4 = 36;
+	editor.oldNote1 = config.notesPerOctave * 3;
+	editor.oldNote2 = config.notesPerOctave * 3;
+	editor.oldNote3 = config.notesPerOctave * 3;
+	editor.oldNote4 = config.notesPerOctave * 3;
 	editor.tuningVol = 32;
 	editor.sampleVol = 100;
-	editor.tuningNote = 24; // C-3
+	editor.tuningNote = config.notesPerOctave * 2; // C-3
 	editor.metroSpeed = 4;
 	editor.editMoveAdd = 1;
 	editor.initialTempo = 125;
