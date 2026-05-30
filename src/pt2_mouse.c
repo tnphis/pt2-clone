@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -484,8 +484,8 @@ static void edNote1UpButton(void)
 	else
 		editor.note1++;
 
-	if (editor.note1 > 36)
-		editor.note1 = 36;
+	if (editor.note1 > config.notesPerOctave * 3)
+		editor.note1 = config.notesPerOctave * 3;
 
 	ui.updateChordNote1Text = true;
 	recalcChordLength();
@@ -512,8 +512,8 @@ static void edNote2UpButton(void)
 	else
 		editor.note2++;
 
-	if (editor.note2 > 36)
-		editor.note2 = 36;
+	if (editor.note2 > config.notesPerOctave * 3)
+		editor.note2 = config.notesPerOctave * 3;
 
 	ui.updateChordNote2Text = true;
 	recalcChordLength();
@@ -540,8 +540,8 @@ static void edNote3UpButton(void)
 	else
 		editor.note3++;
 
-	if (editor.note3 > 36)
-		editor.note3 = 36;
+	if (editor.note3 > config.notesPerOctave * 3)
+		editor.note3 = config.notesPerOctave * 3;
 
 	ui.updateChordNote3Text = true;
 	recalcChordLength();
@@ -568,8 +568,8 @@ static void edNote4UpButton(void)
 	else
 		editor.note4++;
 
-	if (editor.note4 > 36)
-		editor.note4 = 36;
+	if (editor.note4 > config.notesPerOctave * 3)
+		editor.note4 = config.notesPerOctave * 3;
 
 	ui.updateChordNote4Text = true;
 	recalcChordLength();

@@ -17,7 +17,7 @@ static int32_t periodToNote(int32_t period) // 0 = no note, 1 = illegal note, 2.
 		return 0;
 
 	int32_t beg = 0;
-	int32_t end = 36 - 1;
+	int32_t end = config.notesPerOctave * 3 - 1;
 
 	// do binary search
 	while (beg <= end)
