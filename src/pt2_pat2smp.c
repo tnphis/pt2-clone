@@ -18,9 +18,9 @@
 #include "pt2_downsample2x.h"
 #include "pt2_replayer.h"
 
-static const char *noteStr[12] =
+static const char *noteStr[26] =
 {
-	"c-", "c#", "d-", "d#", "e-", "f-", "f#", "g-", "g#", "a-", "a#", "b-"
+	"c-", "c#", "cx", "db", "d-", "d#", "dx", "eb", "e-", "e#", "fb", "f-", "f#", "fx", "gb", "g-", "g#", "gx", "ab", "a-", "a#", "ax", "bb", "b-", "b#", "cb"
 };
 
 static bool pat2SmpEndReached;

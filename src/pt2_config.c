@@ -505,7 +505,7 @@ static bool loadProTrackerDotIni(FILE *f)
 						config.notesPerOctave =12;
 					 } else if (!_strnicmp(&configLine[6], "26edo", 5))
 					 {
-						config.amigaModel = SCALE_26EDO;
+						config.scale = SCALE_26EDO;
 						config.notesPerOctave = 26;
 					 }
 			}

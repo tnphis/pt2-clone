@@ -37,11 +37,11 @@ class PeriodTableWriter:
         rslt = ''
         for pos in range(8):
             rslt += self.generateThreeRows(pos)
-            rslt += '\n\n'
+            rslt += '\n'
 
         for neg in range(-8, 0):
             rslt += self.generateThreeRows(neg)
-            rslt += '\n\n'
+            rslt += '\n'
 
         return rslt
 
