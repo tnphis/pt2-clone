@@ -1,4 +1,4 @@
-// for finding memory leaks in debug mode with Visual Studio 
+// for finding memory leaks in debug mode with Visual Studio
 #if defined _DEBUG && defined _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -220,7 +220,7 @@ void keyDownHandler(SDL_Scancode scancode, SDL_Keycode keycode)
 
 		keyb.lastRepKey = scancode;
 	}
-	
+
 
 	// ENTRY JUMPING IN DISK OP. FILELIST
 	if (ui.diskOpScreenShown && keyb.shiftPressed && !ui.editTextFlag)
@@ -247,7 +247,18 @@ void keyDownHandler(SDL_Scancode scancode, SDL_Keycode keycode)
 	// GENERAL KEYS
 	switch (scancode)
 	{
-		case SDL_SCANCODE_NONUSBACKSLASH: turnOffVoices(); break; // magic "kill all voices" button
+		case SDL_SCANCODE_NONUSBACKSLASH:
+		{
+			if (keyb.shiftPressed)
+			{
+				turnOffVoices();  // magic "kill all voices" button
+			}
+			else
+			{
+				handleEditKeys(scancode, EDIT_NORMAL);
+			}
+		}
+		break;
 
 		case SDL_SCANCODE_APOSTROPHE:
 		{
@@ -263,6 +274,10 @@ void keyDownHandler(SDL_Scancode scancode, SDL_Keycode keycode)
 
 				ui.updateTrackerFlags = true;
 			}
+			else
+			{
+				handleEditKeys(scancode, EDIT_NORMAL);
+			}
 		}
 		break;
 
@@ -273,7 +288,7 @@ void keyDownHandler(SDL_Scancode scancode, SDL_Keycode keycode)
 				if (handleSpecialKeys(scancode) && editor.currMode != MODE_RECORD)
 					modSetPos(DONT_SET_ORDER, (song->currRow + editor.editMoveAdd) & 63);
 			}
-			else
+			else if (keyb.shiftPressed)
 			{
 				if (editor.autoInsFlag)
 				{
@@ -291,6 +306,10 @@ void keyDownHandler(SDL_Scancode scancode, SDL_Keycode keycode)
 				}
 
 				ui.updateTrackerFlags = true;
+			}
+			else
+			{
+				handleEditKeys(scancode, EDIT_NORMAL);
 			}
 		}
 		break;
@@ -1667,7 +1686,7 @@ void keyDownHandler(SDL_Scancode scancode, SDL_Keycode keycode)
 		{
 			keyb.delayKey = false;
 			keyb.repeatKey = false;
-			
+
 			if (ui.samplerScreenShown && keyb.shiftPressed)
 			{
 				if (editor.markStartOfs >= 0 && (keyb.leftCtrlPressed || keyb.leftAltPressed))
