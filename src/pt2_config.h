@@ -14,6 +14,9 @@ enum
 {
 	SCALE_12EDO = 0,
 	SCALE_26EDO = 1,
+	SCALE_31EDO = 2,
+	SCALE_22EDO = 3,
+	SCALE_17EDO = 4,
 };
 
 typedef struct config_t
