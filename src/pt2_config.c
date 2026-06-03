@@ -507,6 +507,18 @@ static bool loadProTrackerDotIni(FILE *f)
 					 {
 						config.scale = SCALE_26EDO;
 						config.notesPerOctave = 26;
+					 } else if (!_strnicmp(&configLine[6], "31edo", 5))
+					 {
+						config.scale = SCALE_31EDO;
+						config.notesPerOctave = 31;
+					 } else if (!_strnicmp(&configLine[6], "22edo", 5))
+					 {
+						config.scale = SCALE_22EDO;
+						config.notesPerOctave = 22;
+					 } else if (!_strnicmp(&configLine[6], "17edo", 5))
+					 {
+						config.scale = SCALE_17EDO;
+						config.notesPerOctave = 17;
 					 }
 			}
 		}
