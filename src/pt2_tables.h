@@ -11,13 +11,13 @@ extern const char *ftuneStrTab[16];
 extern const int8_t vuMeterHeights[65];
 extern const char hexTable[16];
 extern const uint32_t cursorColors[6][3];
-extern const char *noteNames1[2+84];
-extern const char *noteNames2[2+84];
-extern const char *noteNames3[2+84];
-extern const char *noteNames4[2+84];
+extern const char *noteNames1[2+93];
+extern const char *noteNames2[2+93];
+extern const char *noteNames3[2+93];
+extern const char *noteNames4[2+93];
 extern const uint8_t vibratoTable[32];
 extern const uint16_t modulationTable[64];
-extern const int16_t periodTable[(85*16)+15];
+extern const int16_t periodTable[(94*16)+15];
 extern int8_t pNoteTable[32];
 extern const uint32_t tickDuration31fp[(MAX_BPM-MIN_BPM)+1+1];
 

@@ -255,7 +255,8 @@ void keyDownHandler(SDL_Scancode scancode, SDL_Keycode keycode)
 			}
 			else
 			{
-				handleEditKeys(scancode, EDIT_NORMAL);
+				// use nonushash instead of the real 100 to make use of the existing table
+				handleEditKeys(50, EDIT_NORMAL);
 			}
 		}
 		break;

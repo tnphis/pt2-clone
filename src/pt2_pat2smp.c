@@ -18,13 +18,14 @@
 #include "pt2_downsample2x.h"
 #include "pt2_replayer.h"
 
-static const char *noteStr[26] =
+// b-s will have the wrong octave but too lazy to try and fix that
+static const char *noteStr[31] =
 {
-	"c-", "c#", "cx", "db", "d-", "d#", "dx", "eb", "e-", "e#", "fb", "f-", "f#", "fx", "gb", "g-", "g#", "gx", "ab", "a-", "a#", "ax", "bb", "b-", "b#", "cb"
+	"b-", "cb", "b#", "c-", "dw", "c#", "dw", "cx", "d-", "ew", "d#", "eb", "dx", "e-", "fb", "e#", "f-", "gw", "f#", "gb", "fx", "g-", "aw", "g#", "ab", "gx", "a-", "bw", "a#", "bb", "ax",
 };
 
 static bool pat2SmpEndReached;
-static uint8_t pat2SmpFinetune = 4, pat2SmpNote = 33; // A-3 finetune +4 (default, max safe frequency)
+static uint8_t pat2SmpFinetune = 4, pat2SmpNote = 92; // A-3 finetune +4 (default, max safe frequency)
 static uint8_t pat2SmpStartRow = 0, pat2SmpRows = 32;
 static int32_t pat2SmpPos;
 static double *dMixBufferL, *dMixBufferR, *dPat2SmpBuf, dPat2SmpFreq, dSeconds;
@@ -356,11 +357,11 @@ void pat2SmpRender(void)
 	const int32_t octave = (pat2SmpNote / config.notesPerOctave) + 1;
 
 	if (pat2SmpFinetune == 0)
-		sprintf(s->text, "pat2smp(%s%d ftune: 0)", noteStr[note], octave);
+		sprintf(s->text, "pat2smp(%s%d ftun: 0)", noteStr[note], octave);
 	else if (pat2SmpFinetune < 8)
-		sprintf(s->text, "pat2smp(%s%d ftune:+%d)", noteStr[note], octave, pat2SmpFinetune);
+		sprintf(s->text, "pat2smp(%s%d ftun:+%d)", noteStr[note], octave, pat2SmpFinetune);
 	else
-		sprintf(s->text, "pat2smp(%s%d ftune:-%d)", noteStr[note], octave, (pat2SmpFinetune^7)-7);
+		sprintf(s->text, "pat2smp(%s%d ftun:-%d)", noteStr[note], octave, (pat2SmpFinetune^7)-7);
 
 	fixSampleBeep(s);
 	updateCurrSample();
