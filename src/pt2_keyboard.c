@@ -255,7 +255,7 @@ void keyDownHandler(SDL_Scancode scancode, SDL_Keycode keycode)
 			}
 			else
 			{
-				handleEditKeys(scancode, EDIT_NORMAL);
+				handleEditKeys(50, EDIT_NORMAL);
 			}
 		}
 		break;
